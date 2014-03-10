@@ -12,12 +12,21 @@ import java.util.ArrayList;
  */
 public class GettingStarted {
 
-    private static final List<String> NAMES = Arrays.asList("John", "Peter", "Francis", "Claire");
+    static final List<String> NAMES = Arrays.asList("John", "Peter", "Francis", "Claire");
+    static interface Action<T> {
+        public T execute();
+    }
 
-    List<String> sortListByName(List<String> names) {
+    public List<String> sortListByName(List<String> names) {
         // Dont worry Streams will be much better
         sort(names, (a, b)-> a.compareTo(b));
         return names;
+    }
+
+
+
+    public Car buildCarWith(Action<Car> builder) {
+        return builder.execute();
     }
 
 }
