@@ -23,10 +23,4 @@ public class GettingStarted {
         return names;
     }
 
-
-
-    public Car buildCarWith(Action<Car> builder) {
-        return builder.execute();
-    }
-
 }

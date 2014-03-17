@@ -45,24 +45,4 @@ public class GettingStartedTests {
         assertThat(carsByPriceAsc.get(0).model, is("ds5"));
     }
 
-    @Test
-    public void methodReferences() {
-        GettingStarted gs = new GettingStarted();
-        List<String> names = GettingStarted.NAMES;
-        Car car = gs.buildCarWith(this::getBuilder);
-
-        assertThat(car.brand, is("seat"));
-        assertThat(car.model, is("124"));
-    }
-
-    /**
-     * Check the tests to see how it's used the functional interface
-     *
-     * @param action the action to perform
-     * @return some result from the action's execution
-     */
-    public GettingStarted.Action<Car> getBuilder() {
-        return ()-> new Car("seat","124",1000.10);
-    }
-
 }
