@@ -5,9 +5,9 @@ package lambda;
  */
 public class Car {
 
-    String brand;
-    String model;
-    Double price;
+    public String brand;
+    public String model;
+    public Double price;
 
     public Car(String brand, String model, Double price) {
         this.brand = brand;
