@@ -5,6 +5,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static lambda.Sort.sort;
 
+import java.math.BigInteger;
 import java.util.List;
 import java.util.Arrays;
 import java.util.Optional;
@@ -90,9 +91,24 @@ public  class StreamTests {
         assertThat(lessEqualFourThousand.count(), is(2L));
 
         // Transforming the values of a given stream by using map
-        Stream<String> transformedStrings = words.stream().map( st -> st.toUpperCase());
+        Stream<String> transformedStrings = words.stream().map(String::toUpperCase);
         List<String> toUpperCaseValues = transformedStrings.collect(Collectors.toList());
         assertThat(toUpperCaseValues, hasItems("CONSEQUENCES", "HAPPINESS", "KNOWLEDGE"));
+    }
+
+    @Test
+    public void substreamsAndCombiningStreams() {
+        // LImiting the number of items in an infinite stream
+        Stream<Double> randomNumbers = Stream.generate(Math::random).limit(100);
+        assertThat(randomNumbers.count(), is(100L));
+
+        List<Integer> arithmeticProgression =
+            Stream.of(1, 2, 3, 4, 5).
+                map(n -> 1 + (n - 1) * 5).
+                collect(Collectors.toList());
+
+        assertThat(arithmeticProgression.get(4), is(21));
+
     }
 
 }
