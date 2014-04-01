@@ -9,7 +9,10 @@ import java.math.BigInteger;
 import java.util.List;
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.OptionalInt;
+import java.util.function.IntUnaryOperator;
 import java.util.stream.Stream;
+import java.util.stream.IntStream;
 import java.util.stream.Collectors;
 
 import org.junit.Test;
@@ -102,13 +105,15 @@ public  class StreamTests {
         Stream<Double> randomNumbers = Stream.generate(Math::random).limit(100);
         assertThat(randomNumbers.count(), is(100L));
 
-        List<Integer> arithmeticProgression =
-            Stream.of(1, 2, 3, 4, 5).
-                map(n -> 1 + (n - 1) * 5).
-                collect(Collectors.toList());
+        IntUnaryOperator arithmetic = n -> 1 + (n - 1) * 5;
+        OptionalInt an =
+            IntStream.
+                range(1, 6).
+                map(arithmetic).
+                skip(4).
+            findFirst();
 
-        assertThat(arithmeticProgression.get(4), is(21));
-
+        assertThat(an.getAsInt(), is(21));
     }
 
 }
