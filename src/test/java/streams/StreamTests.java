@@ -101,10 +101,11 @@ public  class StreamTests {
 
     @Test
     public void substreamsAndCombiningStreams() {
-        // LImiting the number of items in an infinite stream
+        // Limiting the number of items in an infinite stream
         Stream<Double> randomNumbers = Stream.generate(Math::random).limit(100);
         assertThat(randomNumbers.count(), is(100L));
 
+        // Using ranges for mapping an arithmetic progression
         IntUnaryOperator arithmetic = n -> 1 + (n - 1) * 5;
         OptionalInt an =
             IntStream.
@@ -114,6 +115,15 @@ public  class StreamTests {
             findFirst();
 
         assertThat(an.getAsInt(), is(21));
+
+        //Concatenating two streams
+        List<String> combined =
+            Stream.concat(
+                Stream.of("Hello"),
+                Stream.of("JDK8")
+            ).collect(Collectors.toList());
+
+        assertThat(combined, hasItems("Hello", "JDK8"));
     }
 
 }
