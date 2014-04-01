@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.OptionalInt;
+import java.util.function.Supplier;
 import java.util.function.IntUnaryOperator;
 import java.util.stream.Stream;
 import java.util.stream.IntStream;
@@ -158,12 +159,21 @@ public  class StreamTests {
         assertThat(startingWithL.get(), is("Love"));
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void optionalType() {
         //Creating and transforming an optional instance
         Optional<String> optional = Optional.of("Something");
         assertThat(optional.isPresent(), is(true));
         assertThat(optional.get(), is("Something"));
         assertThat(optional.map(v -> v.toUpperCase()).get(), is("SOMETHING"));
+
+        //Nullable optional
+        Optional<String> nullable = Optional.ofNullable(null);
+        Supplier<String> supplier = () -> "Some value";
+        assertThat(nullable.isPresent(), is(false));
+        assertThat(nullable.orElse("option"), is("option"));
+        assertThat(nullable.orElseGet(supplier), is("Some value"));
+
+        nullable.orElseThrow(IllegalArgumentException::new);
     }
 }
