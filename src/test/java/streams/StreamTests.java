@@ -8,6 +8,7 @@ import static lambda.Sort.sort;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.function.IntUnaryOperator;
@@ -126,4 +127,43 @@ public  class StreamTests {
         assertThat(combined, hasItems("Hello", "JDK8"));
     }
 
+    @Test
+    public void statefulTransformations() {
+        //Distinct words
+        Stream<String> advices = Stream.of("practice", "practice", "practice").distinct();
+        assertThat(advices.count(), is(1L));
+
+        //Sorting words by length
+        Stream<String> longestsFirst =
+            Stream.of("This", "is", "getting", "better").
+                sorted(Comparator.comparing(String::length).reversed());
+
+        Optional<String> optional = longestsFirst.findFirst();
+        assertThat(optional.get(), is("getting"));
+    }
+
+    @Test
+    public void simpleReductions() {
+        //Getting largest word
+        Optional<String> largest =
+            Stream.of("a", "b", "y", "z").
+                max(String::compareToIgnoreCase);
+        assertThat(largest.get(), is("z"));
+
+        //Getting a particular element
+        Optional<String> startingWithL =
+            Stream.of("Something", "Love", "Liberation").
+            filter(w -> w.startsWith("L")).
+        findFirst();
+        assertThat(startingWithL.get(), is("Love"));
+    }
+
+    @Test
+    public void optionalType() {
+        //Creating and transforming an optional instance
+        Optional<String> optional = Optional.of("Something");
+        assertThat(optional.isPresent(), is(true));
+        assertThat(optional.get(), is("Something"));
+        assertThat(optional.map(v -> v.toUpperCase()).get(), is("SOMETHING"));
+    }
 }
