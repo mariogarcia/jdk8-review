@@ -6,11 +6,13 @@ import static org.hamcrest.CoreMatchers.hasItems;
 import static lambda.Sort.sort;
 
 import java.math.BigInteger;
+import java.util.Set;
 import java.util.List;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.OptionalInt;
+import java.util.IntSummaryStatistics;
 import java.util.function.Supplier;
 import java.util.function.IntUnaryOperator;
 import java.util.stream.Stream;
@@ -108,6 +110,7 @@ public  class StreamTests {
         assertThat(randomNumbers.count(), is(100L));
 
         // Using ranges for mapping an arithmetic progression
+        // Ranges upper bound is not inclusive
         IntUnaryOperator arithmetic = n -> 1 + (n - 1) * 5;
         OptionalInt an =
             IntStream.
@@ -194,4 +197,65 @@ public  class StreamTests {
         assertThat(model.isPresent(), is(false));
     }
 
+    @Test
+    public void reductionOperations() {
+        // Computing total length of all names within the following stream
+        Stream<String> names = Stream.of("John", "Peter", "Roger");
+        Optional<Integer> namesLength = names.map(String::length).reduce((x, y) -> x + y);
+
+        assertThat(namesLength.isPresent(), is(true));
+        assertThat(namesLength.get(), is(14));
+
+        IntUnaryOperator arithmetic = n -> 1 + (n - 1) * 5;
+        // Ranges upper bound is not inclusive
+        OptionalInt an1 =
+            IntStream.
+                range(1, 7).
+                map(arithmetic).
+                peek(x -> System.out.println(x)). // Sneaking into the values
+                reduce((x, y) -> x + y);
+        assertThat(an1.isPresent(), is(true));
+        assertThat(an1.getAsInt(), is(81));
+
+    }
+
+    @Test
+    public void collectingResults() {
+        // Creating a String array from a stream
+        Stream<String> names1 = Stream.of("John", "Peter", "Roger");
+        String[] nameArray = names1.toArray(String[]::new);
+
+        Stream<String> names2 = Stream.of("John", "Peter", "Roger");
+        Set<String> nameSet = names2.collect(Collectors.toSet());
+        assertThat(nameArray.length, is(3));
+        assertThat(nameSet.size(), is(3));
+
+        //Joining streams
+        Stream<String> names3 = Stream.of("John", "Peter", "Roger");
+        String joined = names3.collect(Collectors.joining("|"));
+        assertThat(joined, is("John|Peter|Roger"));
+
+        //Joining by mapping
+        String modelsSeparatedByPipe =
+            Stream.of(
+                new Car("citroen","ds3",5000.50),
+                new Car("citroen","ds5",5000.50)).
+                    map(Car::toString).
+                    collect(Collectors.joining("|"));
+
+        assertThat(modelsSeparatedByPipe, is("ds3|ds5"));
+    }
+
+    @Test
+    public void gettingStatistics() {
+        IntSummaryStatistics carStatistics =
+            Stream.of(
+                new Car("citroen","ds3",5000.50),
+                new Car("citroen","ds5",5000.50)).
+                    map(car -> car.model).
+                    collect(Collectors.summarizingInt(String::length));
+
+        assertThat(carStatistics.getAverage(), is(3.0));
+        assertThat(carStatistics.getMax(), is(3));
+    }
 }
