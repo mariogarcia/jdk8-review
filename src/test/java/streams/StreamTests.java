@@ -176,4 +176,22 @@ public  class StreamTests {
 
         nullable.orElseThrow(IllegalArgumentException::new);
     }
+
+    @Test
+    public void composingOptional() {
+        // Transforming an optional into another optional
+        Stream<Car> fleet = Stream.of(new Car("citroen","ds3",5000.50));
+        Optional<String> firstModel = fleet.findFirst().flatMap(Car::getModel);
+        assertThat(firstModel.get(), is("ds3"));
+
+        //What happens if the transformation turns to end in a nullable
+        Stream<Car> poorFleet = Stream.of(new Car("citroen","ds3",5000.50));
+        Optional<String> model =
+                poorFleet.
+                    filter(car -> car.brand == "ford").
+                    findFirst().
+                    flatMap(Car::getModel);
+        assertThat(model.isPresent(), is(false));
+    }
+
 }

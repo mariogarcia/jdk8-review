@@ -1,5 +1,7 @@
 package lambda;
 
+import java.util.Optional;
+
 /**
  * Just a car representation
  */
@@ -13,6 +15,10 @@ public class Car {
         this.brand = brand;
         this.model = model;
         this.price = price;
+    }
+
+    public Optional<String> getModel() {
+        return Optional.ofNullable(this.model);
     }
 
     public String toString() {
