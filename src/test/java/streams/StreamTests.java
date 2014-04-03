@@ -7,6 +7,7 @@ import static lambda.Sort.sort;
 
 import java.math.BigInteger;
 import java.util.Set;
+import java.util.Map;
 import java.util.List;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -24,6 +25,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 import lambda.Car;
+import lambda.Author;
 
 /**
  * Exercises for using the Stream API of JDK8
@@ -257,5 +259,26 @@ public  class StreamTests {
 
         assertThat(carStatistics.getAverage(), is(3.0));
         assertThat(carStatistics.getMax(), is(3));
+    }
+
+    @Test
+    public void collectingIntoMaps() {
+        Map<String,Integer> authors =
+            Stream.of(
+                new Author("John", 1923),
+                new Author("Peter", 1832)).
+                    collect(
+                        Collectors.toMap(
+                            Author::getName,
+                            Author::getYear
+                        )
+                    );
+
+        Optional<Integer> sum = authors.
+                values().
+                stream().reduce((a, b) -> a + b);
+        assertThat(authors.keySet(), hasItems("John", "Peter"));
+        assertThat(sum.isPresent(), is(true));
+        assertThat(sum.get(), is(3755));
     }
 }
