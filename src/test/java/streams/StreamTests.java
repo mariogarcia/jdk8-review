@@ -4,6 +4,11 @@ import static org.junit.Assert.assertThat;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static lambda.Sort.sort;
+import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.maxBy;
+import static java.util.stream.Collectors.mapping;
+import static java.util.stream.Collectors.groupingBy;
+
 
 import java.math.BigInteger;
 import java.util.Set;
@@ -320,4 +325,97 @@ public  class StreamTests {
                     );
     }
 
+    @Test
+    public void groupingAuthors() {
+        Stream<Author> authors =
+            Stream.of(
+                new Author("John", 1929),
+                new Author("Jackson", 1929),
+                new Author("Peter", 2014));
+
+        Map<Integer, List<Author>> authorByYear =
+            authors.collect(
+                Collectors.groupingBy(Author::getYear)
+            );
+
+        assertThat(authorByYear.get(1929).size(), is(2));
+        assertThat(authorByYear.size(), is(2));
+        assertThat(authorByYear.get(2014).size(), is(1));
+    }
+
+    @Test
+    public void partitioningAuthors() {
+        Stream<Author> authors =
+            Stream.of(
+                new Author("John", 1929),
+                new Author("Jackson", 1929),
+                new Author("Peter", 2014));
+
+        Map<Boolean, List<Author>> authorByName =
+            authors.collect(
+                Collectors.partitioningBy(author -> author.getName().equals("Peter"))
+            );
+
+        assertThat(authorByName.get(Boolean.TRUE).size(), is(1));
+        assertThat(authorByName.size(), is(2));
+        assertThat(authorByName.get(Boolean.FALSE).size(), is(2));
+    }
+
+    @Test
+    public void usingGroupingToAggregateData() {
+        // List of authors by year
+        List<Author> authorList =
+            Arrays.asList(new Author("John", 1929),
+                new Author("Jackson", 1929),
+                new Author("John", 1929),
+                new Author("Peter", 2014));
+
+        Map<Integer, Long> authorsByYear =
+            authorList.stream().collect(
+                Collectors.groupingBy(
+                    Author::getYear,
+                    Collectors.counting()
+                )
+            );
+
+        assertThat(authorsByYear.size(), is(2));
+        assertThat(authorsByYear.get(1929), is(3L));
+        assertThat(authorsByYear.get(2014), is(1L));
+
+        // Adding up years by name (Silly :S I know)
+        Map<String, Integer> sumYearsByName =
+            authorList.stream().collect(
+                Collectors.groupingBy(
+                    Author::getName,
+                    Collectors.summingInt(Author::getYear)
+                )
+            );
+
+        assertThat(sumYearsByName.size(), is(3));
+        assertThat(sumYearsByName.get("John"), is(3858));
+        assertThat(sumYearsByName.get("Jackson"), is(1929));
+        assertThat(sumYearsByName.get("Peter"), is(2014));
+    }
+
+    @Test
+    public void usingGroupingForAggregatingDataContinues() {
+        List<Author> authorList =
+            Arrays.asList(new Author("John", 1929),
+                new Author("Jackson", 1929),
+                new Author("John", 1929),
+                new Author("Peter", 2014));
+
+        Map<Integer, Optional<String>> maxAuthorByYearAndLongestName =
+            authorList.stream().collect(
+                groupingBy(Author::getYear,
+                    mapping(Author::getName,
+                        maxBy(comparing(String::length))
+                    )
+                )
+            );
+
+        // 1929 & 2014
+        assertThat(maxAuthorByYearAndLongestName.size(), is(2));
+        assertThat(maxAuthorByYearAndLongestName.get(1929).get(), is("Jackson"));
+    }
 }
