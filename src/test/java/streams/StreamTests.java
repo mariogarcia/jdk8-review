@@ -15,6 +15,7 @@ import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.IntSummaryStatistics;
 import java.util.function.Supplier;
+import java.util.function.BinaryOperator;
 import java.util.function.IntUnaryOperator;
 import java.util.stream.Stream;
 import java.util.stream.IntStream;
@@ -281,4 +282,42 @@ public  class StreamTests {
         assertThat(sum.isPresent(), is(true));
         assertThat(sum.get(), is(3755));
     }
+
+    @Test
+    public void collectingIntoMapsWithDuplicatedKeys() {
+        // This is the merge function in order to decide when two values have the same
+        // key
+        BinaryOperator<Integer> takeGreaterYear =
+            (Integer existing, Integer current) ->  current >= existing ? current : existing;
+
+        Map<String,Integer> authors =
+            Stream.of(
+                new Author("John", 1000),
+                new Author("John", 2000),
+                new Author("Peter", 1000)).
+                    collect(
+                        Collectors.toMap(Author::getName, Author::getYear, takeGreaterYear)
+                    );
+
+            Optional<Integer> sum = authors.
+                values().
+                stream().reduce((a, b) -> a + b);
+        assertThat(authors.keySet(), hasItems("John", "Peter"));
+        assertThat(sum.isPresent(), is(true));
+        assertThat(sum.get(), is(3000));
+
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void exceptionWhenHavingDuplicateKeys() {
+        Map<String,Integer> authors =
+            Stream.of(
+                new Author("John", 1000),
+                new Author("John", 2000),
+                new Author("Peter", 1000)).
+                    collect(
+                        Collectors.toMap(Author::getName, Author::getYear)
+                    );
+    }
+
 }
