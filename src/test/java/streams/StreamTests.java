@@ -391,10 +391,33 @@ public  class StreamTests {
                 )
             );
 
-        assertThat(sumYearsByName.size(), is(3));
-        assertThat(sumYearsByName.get("John"), is(3858));
-        assertThat(sumYearsByName.get("Jackson"), is(1929));
-        assertThat(sumYearsByName.get("Peter"), is(2014));
+        // Another way for adding up years by name
+        Map<String,IntSummaryStatistics> sumYearByName2 =
+            authorList.stream().collect(
+                groupingBy(
+                    Author::getName,
+                    Collectors.summarizingInt(Author::getYear)
+                )
+            );
+
+        Map<String, Integer> sumYearByName3 =
+            authorList.stream().collect(
+                groupingBy(
+                    Author::getName,
+                    Collectors.reducing(
+                        0,
+                        Author::getYear,
+                        (Integer year_one, Integer year_two) -> year_one + year_two
+                    )
+                )
+            );
+
+        assertThat(sumYearsByName.size()                  , is(3));
+        assertThat(sumYearsByName.get("John").longValue() , is(sumYearByName2.get("John").getSum()));
+        assertThat(sumYearsByName.get("John")             , is(sumYearByName3.get("John")));
+        assertThat(sumYearsByName.get("John")             , is(3858));
+        assertThat(sumYearsByName.get("Jackson")          , is(1929));
+        assertThat(sumYearsByName.get("Peter")            , is(2014));
     }
 
     @Test
