@@ -441,4 +441,30 @@ public  class StreamTests {
         assertThat(maxAuthorByYearAndLongestName.size(), is(2));
         assertThat(maxAuthorByYearAndLongestName.get(1929).get(), is("Jackson"));
     }
+
+    @Test
+    public void primitiveTypeStreams() {
+        IntStream numbers = IntStream.of(1, 2, 3, 4, 5, 6);
+        IntStream zeroToNine = IntStream.range(0, 10);
+        IntStream zeroToTen = IntStream.rangeClosed(0, 10);
+
+        assertThat(numbers.count()    , is(6L));
+        assertThat(zeroToNine.count() , is(10L));
+        assertThat(zeroToTen.count()  , is(11L));
+    }
+
+    @Test
+    public void primitiveTypeStreams2() {
+        Stream<String> names = Stream.of("Mick", "Ringo", "Bowie", "Plant");
+        OptionalInt nameLength = names.mapToInt(String::length).max();
+
+        assertThat(nameLength.getAsInt(), is(5));
+    }
+
+    @Test
+    public void primitiveTypeStreams3() {
+        Stream<Integer> integers = IntStream.range(0, 100).boxed();
+
+        assertThat(integers.findFirst().get(), is(0));
+    }
 }
